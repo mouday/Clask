@@ -4,10 +4,11 @@
 Clask: a http client based on requests just like Flask
 
 对比：
-- | 描述 | 运行环境
-- | - | -
-Flask | 路由映射到方法 | 服务端
-Clask | 方法映射到路由 | 客户端
+
+| - | 描述 | 运行环境 |
+| - | - | - | 
+| Flask | 路由映射到方法 | 服务端 |
+| Clask | 方法映射到路由 | 客户端 |
  
 ## 安装
 ```bash
