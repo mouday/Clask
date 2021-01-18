@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from .main import Clask
+from .clask import Clask

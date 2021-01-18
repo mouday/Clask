@@ -5,13 +5,13 @@ api = Clask(base_url="http://127.0.0.1:5000")
 
 
 # 发送get请求
-@api.request("/get")
-def get(query):
+@api.route("/get")
+def get(args):
     pass
 
 
 # 发送post请求
-@api.request("/post", method="POST")
+@api.route("/post", method="POST")
 def post1(json):
     pass
 
@@ -23,10 +23,10 @@ def post2(json):
 
 
 # 加入查询参数，自定义接口参数名
-@api.request("/student/{uid}/{name}")
+@api.route("/student/{uid}/{name}")
 def getStudent1(uid, name):
     return {
-        "params": {
+        "args": {
             "uid": uid,
             "name": name
         }
@@ -34,15 +34,15 @@ def getStudent1(uid, name):
 
 
 # 等价于：只是调用函数传入参数不一样
-@api.request("/student/{uid}/{name}")
+@api.route("/student/{uid}/{name}")
 def getStudent1(params):
     pass
 
 
 # 前置处理器
 @api.before_request
-def before_request(**kwargs):
-    print('before_request', kwargs)
+def before_request(kwargs):
+    print('before_request::', kwargs)
     return kwargs
 
 

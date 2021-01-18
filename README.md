@@ -1,5 +1,14 @@
 # Clask
 
+![PyPI](https://img.shields.io/pypi/v/mo-cache.svg)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/mo-cache)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mo-cache)
+![PyPI - License](https://img.shields.io/pypi/l/mo-cache)
+
+
+Github:https://github.com/mouday/Clask
+
+
 ## 简介
 Clask: a http client based on requests just like Flask
 
@@ -53,7 +62,7 @@ api = Clask(base_url="http://127.0.0.1:5000")
 
 
 # 发送get请求
-@api.request("/get")
+@api.route("/get")
 def get():
     pass
 
@@ -63,3 +72,37 @@ if __name__ == '__main__':
     # '{"name": "Tom", "age": 23}'
 ```
 
+其他示例
+```python
+# 发送get请求
+@api.get("/get")
+def get():
+    pass
+
+# 发送get请求
+@api.post("/post")
+def post():
+    pass
+    
+
+# 前置处理器
+@api.before_request
+def before_request(options):
+    print('before_request::', options)
+    return options
+
+
+# 后置处理器
+@api.after_request
+def after_request(response):
+    print('after_request', response.status_code)
+    return response.json()
+
+
+# 异常处理器
+@api.error_handler
+def error_handler(e):
+    print(e)
+    return None
+
+```
