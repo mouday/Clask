@@ -13,35 +13,7 @@ from .utils import UrlTemplate
 from functools import wraps
 
 
-class ClaskHandler(object):
-
-    @staticmethod
-    def url_join_handler(options):
-        """拼接url"""
-        options['url'] = options.pop('base_url') + options['url']
-        return options
-
-    @staticmethod
-    def url_args_handler(options):
-        """url 路径参数替换"""
-        if 'args' in options:
-            options['url'] = UrlTemplate(options['url']).substitute(**options.pop("args"))
-
-        return options
-
-    @staticmethod
-    def filter_invalid_handler(options):
-        """过滤无效参数"""
-        return {k: v for k, v in options.items() if v is not None}
-
-
 class Clask(object):
-    # 默认的请求处理器，放在用户自定义方法之后按顺序执行
-    default_before_requests = [
-        ClaskHandler.filter_invalid_handler,
-        ClaskHandler.url_join_handler,
-        ClaskHandler.url_args_handler,
-    ]
 
     def __init__(self, base_url=None, method="GET",
                  params=None, data=None, args=None, json=None,
@@ -90,8 +62,9 @@ class Clask(object):
             'cert': cert,
         }
 
-        self._before_requests = []
-        self._after_requests = []
+        # 注意：不要使用list引用数据类型和类变量
+        self._before_request = None
+        self._after_request = None
         self._error_handler = None
 
     def before_request(self, func):
@@ -103,7 +76,7 @@ class Clask(object):
 
         options 同 self.options
         """
-        self._before_requests.append(func)
+        self._before_request = func
 
     def after_request(self, func):
         """
@@ -139,7 +112,7 @@ class Clask(object):
             raw
         }
         """
-        self._after_requests.append(func)
+        self._after_request = func
 
     def error_handler(self, func):
         """
@@ -155,9 +128,12 @@ class Clask(object):
         options = {**self.options, **kwargs, 'url': url}
 
         # 请求前参数处理
-        for before_request in [*self._before_requests, *self.default_before_requests]:
-            logger.debug("before_request: %s", before_request.__name__)
-            options = before_request(options)
+        if self._before_request:
+            logger.debug("before_request: %s", self._before_request.__name__)
+            options = self._before_request(options)
+
+        # 默认的前置处理器
+        options = self._default_before_request(options)
 
         logger.debug(options)
 
@@ -172,9 +148,9 @@ class Clask(object):
                 raise e
 
         # 请求后响应处理
-        for after_request in self._after_requests:
-            logger.debug("after_request: %s", after_request.__name__)
-            response = after_request(response)
+        if self._after_request:
+            logger.debug("after_request: %s", self.after_request.__name__)
+            response = self.after_request(response)
 
         return response
 
@@ -218,3 +194,26 @@ class Clask(object):
 
     def patch(self, url, **options):
         return self.route(url, method='PATCH', **options)
+
+    def _default_before_request(self, options):
+        # 默认的请求处理器，放在用户自定义方法之后按顺序执行
+        options = self._filter_invalid_handler(options)
+        options = self._url_join_handler(options)
+        options = self._url_args_handler(options)
+        return options
+
+    def _url_join_handler(self, options):
+        """拼接url"""
+        options['url'] = options.pop('base_url') + options['url']
+        return options
+
+    def _url_args_handler(self, options):
+        """url 路径参数替换"""
+        if 'args' in options:
+            options['url'] = UrlTemplate(options['url']).substitute(**options.pop("args"))
+
+        return options
+
+    def _filter_invalid_handler(self, options):
+        """过滤无效参数"""
+        return {k: v for k, v in options.items() if v is not None}
