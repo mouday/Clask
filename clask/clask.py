@@ -149,8 +149,8 @@ class Clask(object):
 
         # 请求后响应处理
         if self._after_request:
-            logger.debug("after_request: %s", self.after_request.__name__)
-            response = self.after_request(response)
+            logger.debug("after_request: %s", self._after_request.__name__)
+            response = self._after_request(response)
 
         return response
 
