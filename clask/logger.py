@@ -3,7 +3,7 @@ from __future__ import print_function, absolute_import, unicode_literals
 
 import logging
 
-logger = logging.getLogger('Clask')
+logger = logging.getLogger('clask')
 
 logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler()
